@@ -37,10 +37,10 @@ const Header = ({ paginaAtual = 'agendar' }) => {
         )}  
 
         <div className="user-nav">
-          {localStorage.getItem('nome_cliente') ? (
+          {localStorage.getItem('id_cliente') ? (
             <>
               <CircleUserRound size={32} />
-              <h2>{localStorage.getItem('nome_cliente')}</h2>
+              <h2>{localStorage.getItem('nome_cliente') && localStorage.getItem('nome_cliente') !== 'undefined' ? localStorage.getItem('nome_cliente') : 'Cliente'}</h2>
               <X 
                 size={20} 
                 style={{ cursor: 'pointer', marginLeft: '10px' }} 

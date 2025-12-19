@@ -42,20 +42,30 @@ export default function Login() {
                 setIsRegistering(false);
             } else {
                 console.log("Login successful. Backend response:", data);
-                if (data.cliente) {
+                
+                if (data.cliente && data.cliente.id) {
                     console.log("Saving client ID to localStorage:", data.cliente.id);
                     localStorage.setItem("id_cliente", data.cliente.id);
-                    localStorage.setItem("nome_cliente", data.cliente.nome);
+                    
+                    if (data.cliente.nome) {
+                        localStorage.setItem("nome_cliente", data.cliente.nome);
+                    } else {
+                        console.warn("Client name is missing in response, setting default.");
+                        localStorage.setItem("nome_cliente", "Cliente");
+                    }
+                    
+                    alert("Login realizado com sucesso!");
+                    
+                    const redirectPath = localStorage.getItem('redirectAfterLogin');
+                    if (redirectPath) {
+                        localStorage.removeItem('redirectAfterLogin');
+                        navigate(redirectPath);
+                    } else {
+                        navigate("/arena/arena-vegas");
+                    }
                 } else {
-                    console.error("No client data received from backend!");
-                }
-                alert("Login realizado com sucesso!");
-                const redirectPath = localStorage.getItem('redirectAfterLogin');
-                if (redirectPath) {
-                    localStorage.removeItem('redirectAfterLogin');
-                    navigate(redirectPath);
-                } else {
-                    navigate("/arena/arena-vegas");
+                    console.error("Estrutura de dados incorreta:", data);
+                    alert("Erro ao salvar login: ID do cliente não encontrado na resposta.\n\nResposta recebida:\n" + JSON.stringify(data, null, 2));
                 }
             }
 
