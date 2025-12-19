@@ -7,7 +7,7 @@ import Steps from "../../components/User/Steps.jsx";
 import HeaderUser from "../../components/User/HeaderUser.jsx"
 import { calcularHorarioFinal } from "../../utils/timeUtils.js";
 
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
 
 import { useForm } from "../../hooks/useForm.jsx";
@@ -25,6 +25,7 @@ const formTemplate = {
 
 function Agendar() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [data, setData] = useState(formTemplate);
   const [error, setError] = useState(null);
 
@@ -41,16 +42,35 @@ function Agendar() {
       
       try {
           const storedIdCliente = localStorage.getItem("id_cliente");
-          console.log("Creating appointment. Stored ID Cliente:", storedIdCliente);
+          console.log("Creating appointment. Stored ID Cliente (raw):", storedIdCliente);
+
+          // Validação Defensiva: Bloqueia se nulo ou indefinido
+          if (!storedIdCliente) {
+              const errorMsg = "Sessão expirada ou usuário não identificado. Faça login novamente.";
+              console.error(errorMsg);
+              setError(errorMsg); // Exibe erro na UI
+              return; // Bloqueia a requisição
+          }
+
+          // Conversão Explícita para Number (Postgres/Backend pode rejeitar string)
+          const idClienteNumber = Number(storedIdCliente);
+
+          if (isNaN(idClienteNumber)) {
+             const errorMsg = "ID do cliente inválido no armazenamento local.";
+             console.error(errorMsg);
+             setError(errorMsg);
+             return;
+          }
 
           const response = await fetch(`${import.meta.env.VITE_API_URL}/agendamentos`, {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',
+                  'Accept': 'application/json' // Boa prática para APIs
               },
               body: JSON.stringify({
                   "id_quadra": data.id_quadra,
-                  "id_cliente": storedIdCliente,
+                  "id_cliente": idClienteNumber, // Envia como número
                   "dia": data.dia,
                   "inicio": data.horario,
                   "fim": horarioFinal,
@@ -160,7 +180,7 @@ function Agendar() {
             {currentStep === 4 && (
               <button
                 type="button"
-                onClick={() => alert("Função implementada por outro membro do grupo")}
+                onClick={() => navigate("/MeusAgendamentos")}
               >
                 <span>Meus agendamentos</span>
               </button>

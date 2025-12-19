@@ -37,6 +37,14 @@ export default function Page() {
             localStorage.setItem('redirectAfterLogin', window.location.pathname);
             window.location.href = '/loginUser';
             setLoading(false);
+            return; // Bloqueia execução
+        }
+
+        // Validação extra: verifica se é um número válido, similar ao Agendar.jsx
+        if (isNaN(Number(clientId))) {
+            console.error("ID do cliente inválido no localStorage:", clientId);
+            setError("Identificação do usuário inválida. Faça login novamente.");
+            setLoading(false);
             return;
         }
 
