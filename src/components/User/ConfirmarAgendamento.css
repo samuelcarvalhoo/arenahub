@@ -1,0 +1,11 @@
+.agendamento-detalhes{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid #ccc;
+}

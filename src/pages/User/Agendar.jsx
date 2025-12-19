@@ -1,0 +1,175 @@
+import EscolherQuadra from "../../components/User/EscolherQuadra.jsx";
+import EscolherData from "../../components/User/EscolherData.jsx";
+import EscolherHorario from "../../components/User/EscolherHorario.jsx";
+import ConfirmarAgendamento from "../../components/User/ConfirmarAgendamento.jsx"; 
+import AgendamentoConfirmado from "../../components/User/AgendamentoConfirmado.jsx";
+import Steps from "../../components/User/Steps.jsx";
+import HeaderUser from "../../components/User/HeaderUser.jsx"
+import { calcularHorarioFinal } from "../../utils/timeUtils.js";
+
+import { useParams } from 'react-router-dom';
+import { useState, useEffect } from "react";
+
+import { useForm } from "../../hooks/useForm.jsx";
+
+import "../../App.css";
+
+const formTemplate = {
+  id_quadra: "",
+  id_cliente: "",
+  dia: "",
+  inicio: "",
+  fim: "",
+  valor: "",
+};
+
+function Agendar() {
+  const { id } = useParams();
+  const [data, setData] = useState(formTemplate);
+  const [error, setError] = useState(null);
+
+  const updateFieldHandler = (key, value) => {
+    setData((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const createAgendamento = async () => {
+      setError(null);
+      const horarioFinal = calcularHorarioFinal(data.horario, data.duracao);
+      
+      try {
+          const storedIdCliente = localStorage.getItem("id_cliente");
+          console.log("Creating appointment. Stored ID Cliente:", storedIdCliente);
+
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/agendamentos`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  "id_quadra": data.id_quadra,
+                  "id_cliente": storedIdCliente,
+                  "dia": data.dia,
+                  "inicio": data.horario,
+                  "fim": horarioFinal,
+                  "valor_total": 150
+              }),
+          });
+
+          const result = await response.json();
+
+          if (!response.ok) {
+              throw new Error(result.error || result.message || "Erro ao criar agendamento");
+          }
+
+          console.log(result);
+          changeStep(currentStep + 1);
+
+      } catch (error) {
+          console.error('Erro ao criar agendamento:', error);
+          setError(error.message);
+      }
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (currentStep === 3) { 
+        createAgendamento();
+    } else {
+        changeStep(currentStep + 1, e);
+    }
+  };
+
+  const formComponents = [
+    <EscolherQuadra
+      key="quadra"
+      data={data}
+      updateFieldHandler={updateFieldHandler}
+      autoadvance = {() => changeStep(currentStep + 1)}
+      arenaId={id}
+    />,
+    <EscolherData
+      key="data"
+      data={data}
+      updateFieldHandler={updateFieldHandler}
+    />,
+    <EscolherHorario
+      key="horario" 
+      data={data}
+      updateFieldHandler={updateFieldHandler}
+      arenaId={id}
+    />,
+    <ConfirmarAgendamento
+      key="confirmar"
+      data={data}
+      updateFieldHandler={updateFieldHandler}
+    />,
+    <AgendamentoConfirmado
+      key="confirmado"
+      data={data}
+    />,
+  ];
+
+  const {
+    currentStep,
+    currentComponent,
+    changeStep,
+    isLastStep,
+    isFirstStep,
+  } = useForm(formComponents);
+
+  return (
+    <div className="app">
+        <HeaderUser paginaAtual="agendar" />
+      <div className="form-container">
+        <form onSubmit={handleFormSubmit}>
+      {currentStep > 0 && <Steps currentStep={currentStep} id_quadra={data.id_quadra} />}
+          <div className="inputs-container">
+              {currentComponent}
+              {error && currentStep === 3 && <p style={{color: 'red', textAlign: 'center'}}>{error}</p>}
+          </div>
+
+          <div className="actions">
+            {!isFirstStep && (
+              <button
+                type="button"
+                onClick={() => isLastStep ? changeStep(0) : changeStep(currentStep - 1)}
+              >
+                <span>{isLastStep ? "Novo Agendamento" : "Voltar"}</span>
+              </button>
+            )}
+
+            {!isLastStep && !isFirstStep && (
+              <button 
+               className="button-confirm"
+                type="submit"
+                disabled={
+                    (currentStep === 1 && !data.dia) || 
+                    (currentStep === 2 && !data.horario)
+                }
+                style={{
+                    opacity: (currentStep === 1 && !data.dia) || (currentStep === 2 && !data.horario) ? 0.5 : 1,
+                    cursor: (currentStep === 1 && !data.dia) || (currentStep === 2 && !data.horario) ? 'not-allowed' : 'pointer'
+                }}
+              >
+                <span>{currentStep === 3 ? "Confirmar Agendamento" : "Avançar"}</span>
+              </button>
+            )}
+            {currentStep === 4 && (
+              <button
+                type="button"
+                onClick={() => alert("Função implementada por outro membro do grupo")}
+              >
+                <span>Meus agendamentos</span>
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default Agendar;

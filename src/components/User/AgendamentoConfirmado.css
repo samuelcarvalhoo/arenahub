@@ -1,0 +1,23 @@
+.agendamento-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 4rem 0;
+}
+.agendamento-info{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.agendamento-info h3{
+    margin-top: 2rem;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.agendamento-info p{
+    color: #4D4D4D;
+}
