@@ -16,15 +16,39 @@
     margin-bottom: 3rem;
 }
 
-.quadra-info{
+.quadra-info {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    padding: 2rem 1rem;
-    border-radius: 1rem;
-    border: 1px solid #CCC;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
     margin-bottom: 2rem;
+    background-image: linear-gradient(to left, #426322, #74AC3D);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+    text-align: center;
 }
+
+.quadra-info:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.quadra-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.quadra-info p {
+    margin: 0;
+    font-size: 1rem;
+    opacity: 0.9;
+    color: white;
+}
+
+
 
 @media (max-width: 768px) {
   .steps-container {

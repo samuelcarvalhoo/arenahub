@@ -224,9 +224,10 @@
 
 
   .QuadraCard {
-    flex-direction: column;
-    text-align: center;
-    margin-bottom: 160px;
+        flex-direction: column;
+        text-align: center;
+        margin-bottom: 10px;
+        height: 300px;
   }
 
   .QuadraCard-thumb {
